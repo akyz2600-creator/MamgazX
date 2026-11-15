@@ -1,0 +1,212 @@
+.page {
+  display: grid;
+  gap: 0.75rem;
+  padding-block: 0.5rem var(--section-gap);
+}
+
+/* Móvil: portada pequeña junto al título; el resto debajo a todo el ancho. */
+.layout {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  grid-template-areas:
+    'cover head'
+    'body body'
+    'chapters chapters';
+  gap: 1.25rem 1rem;
+  align-items: start;
+}
+
+.coverWrap {
+  grid-area: cover;
+}
+
+.cover {
+  box-shadow: var(--glow-violet);
+}
+
+/* En móvil no crea caja propia: sus hijos se colocan directamente en la cuadrícula. */
+.main {
+  display: contents;
+}
+
+.head {
+  grid-area: head;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.body {
+  grid-area: body;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.chapters {
+  grid-area: chapters;
+}
+
+.eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent-blue);
+}
+
+.example {
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--color-text-muted);
+}
+
+.title {
+  font-size: clamp(1.45rem, 6vw, 2.6rem);
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.alternative {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.6rem;
+}
+
+/* Datos clave en una cuadrícula: 2 columnas en móvil, 3 en pantallas más anchas. */
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.stat {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.stat:nth-child(2) {
+  grid-column: span 2;
+  order: 3;
+}
+
+.stat dt {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.stat dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.demo {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--color-text-faint);
+}
+
+.genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.genre {
+  padding: 0.2rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: rgba(139, 92, 246, 0.14);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #cdbcff;
+}
+
+.sectionTitle {
+  margin-bottom: 0.5rem;
+  font-size: clamp(1.15rem, 3vw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Texto cómodo de leer: ancho limitado e interlineado generoso. */
+.synopsis {
+  max-width: 65ch;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #c3c9e2;
+}
+
+@media (min-width: 640px) {
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+}
+
+/* Tres cajas en una fila solo cuando hay espacio; antes, la fecha ocupa una fila propia. */
+@media (min-width: 960px) {
+  .stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stat:nth-child(2) {
+    grid-column: auto;
+    order: 0;
+  }
+}
+
+/* Tablet y escritorio: portada fija a la izquierda y todo el contenido a la derecha. */
+@media (min-width: 768px) {
+  .layout {
+    grid-template-columns: clamp(12rem, 24vw, 16rem) minmax(0, 1fr);
+    grid-template-areas: 'cover main';
+    gap: 2.5rem;
+  }
+
+  .coverWrap {
+    position: sticky;
+    top: calc(var(--header-height) + 1.5rem);
+  }
+
+  .main {
+    grid-area: main;
+    display: grid;
+    gap: 1.5rem;
+    min-width: 0;
+  }
+
+  /* Dentro de `.main` los bloques se apilan solos; se anulan las áreas de la versión móvil. */
+  .head,
+  .body,
+  .chapters {
+    grid-area: auto;
+  }
+}

@@ -1,5 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type RefObject } from 'react';
-import { getCoverUrl, getLatestChapter, searchMangas } from '../lib/manga';
+import { routes } from '../config/routes';
+import { getCoverUrl, getGenreNames, getLatestChapter, searchMangas } from '../lib/manga';
+import { Link } from '../router/router';
 import type { Manga } from '../types/manga';
 import { Cover } from './Cover';
 import { CloseIcon, SearchIcon } from './icons';
@@ -90,27 +92,26 @@ export function SearchBox({ mangas, inputRef }: SearchBoxProps) {
 
       <div id={panelId} className={styles.panel} hidden={!showPanel}>
         {results.length > 0 ? (
-          <>
-            <ul className={styles.list}>
+          <ul className={styles.list}>
               {results.map((manga) => {
                 const latest = getLatestChapter(manga);
                 return (
-                  <li key={manga.slug} className={styles.item}>
-                    <Cover title={manga.title} src={getCoverUrl(manga)} className={styles.thumb} />
-                    <div className={styles.info}>
-                      <span className={styles.name}>{manga.title}</span>
-                      <span className={styles.meta}>
-                        {manga.genres.slice(0, 2).join(' · ')}
-                        {latest && ` · Cap. ${latest.number}`}
-                      </span>
-                    </div>
-                    {manga.isExample && <span className={styles.tag}>Ejemplo</span>}
+                  <li key={manga.id}>
+                    <Link to={routes.manga(manga.slug)} className={styles.item} onClick={() => setDismissed(true)}>
+                      <Cover title={manga.title} src={getCoverUrl(manga)} className={styles.thumb} />
+                      <div className={styles.info}>
+                        <span className={styles.name}>{manga.title}</span>
+                        <span className={styles.meta}>
+                          {getGenreNames(manga).slice(0, 2).join(' · ')}
+                          {latest && ` · Cap. ${latest.number}`}
+                        </span>
+                      </div>
+                      {manga.isExample && <span className={styles.tag}>Ejemplo</span>}
+                    </Link>
                   </li>
                 );
               })}
             </ul>
-            <p className={styles.note}>La página de detalles estará disponible próximamente.</p>
-          </>
         ) : (
           <div className={styles.none}>
             <p className={styles.noneTitle}>Sin coincidencias</p>

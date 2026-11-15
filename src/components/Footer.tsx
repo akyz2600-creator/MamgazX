@@ -1,5 +1,6 @@
 import { siteConfig } from '../config/site';
 import { primaryNav } from '../config/navigation';
+import { Link } from '../router/router';
 import { Logo } from './Logo';
 import styles from './Footer.module.css';
 
@@ -20,9 +21,9 @@ export function Footer() {
           <ul className={styles.list}>
             {primaryNav.map((item) => (
               <li key={item.href}>
-                <a href={item.href} className={styles.link}>
+                <Link to={item.href} className={styles.link}>
                   {item.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

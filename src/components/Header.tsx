@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { primaryNav } from '../config/navigation';
 import { cx } from '../lib/classNames';
+import { Link, useLocation } from '../router/router';
 import type { Manga } from '../types/manga';
 import { CloseIcon, MenuIcon, SearchIcon } from './icons';
 import { Logo } from './Logo';
@@ -15,14 +16,8 @@ interface HeaderProps {
 export function Header({ mangas }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [hash, setHash] = useState(() => window.location.hash);
+  const { pathname } = useLocation();
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const onHashChange = () => setHash(window.location.hash);
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
-  }, []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -36,8 +31,6 @@ export function Header({ mangas }: HeaderProps) {
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
   }, [searchOpen]);
-
-  const isActive = (href: string) => hash === href || (href === '#inicio' && hash === '');
 
   return (
     <header className={styles.header}>
@@ -76,14 +69,14 @@ export function Header({ mangas }: HeaderProps) {
           <ul className={styles.links}>
             {primaryNav.map((item) => (
               <li key={item.href}>
-                <a
-                  href={item.href}
-                  className={cx(styles.link, isActive(item.href) && styles.linkActive)}
-                  aria-current={isActive(item.href) ? 'location' : undefined}
+                <Link
+                  to={item.href}
+                  className={cx(styles.link, item.isActive?.(pathname) && styles.linkActive)}
+                  aria-current={item.isActive?.(pathname) ? 'page' : undefined}
                   onClick={() => setMenuOpen(false)}
                 >
                   {item.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

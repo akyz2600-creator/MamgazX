@@ -2,7 +2,7 @@
 
 Plataforma web moderna para leer **manga y manhwa en español**, gratis y sin necesidad de registrarse.
 
-> Estado actual: **Fase 2 — Diseño visual y página de inicio** (terminada). Existe la página de inicio con datos de ejemplo. Todavía no hay lector, página de detalles ni panel de administración.
+> Estado actual: **Fase 3 — Catálogo** (terminada, con datos de demostración). Hay inicio, catálogo con orden, fichas de manga y lista de capítulos. El lector de imágenes y el panel de administración aún no existen. Ver [PROJECT_STATUS.md](PROJECT_STATUS.md).
 
 ## Objetivo
 
@@ -61,13 +61,16 @@ mangazx/
 ├── src/
 │   ├── assets/                 Recursos que importa el código (logos, íconos)
 │   ├── components/             Componentes reutilizables (cada uno con su .module.css)
-│   │   ├── Header, SearchBox, Logo, Footer
-│   │   ├── HeroBanner, MangaSection, MangaCard, Cover
+│   │   ├── Header, SearchBox, Logo, Footer, Breadcrumb
+│   │   ├── HeroBanner, MangaSection, MangaGrid, MangaCard, Cover
+│   │   ├── ChapterList, SegmentedControl, ViewsBadge
 │   │   └── Button, StatusBadge, EmptyState, icons
-│   ├── config/                 Configuración global (site.ts, navigation.ts)
-│   ├── data/                   Datos de los mangas (mangas.ts: DATOS DE EJEMPLO)
-│   ├── lib/                    Funciones puras: búsqueda, último capítulo, rutas de portada
-│   ├── pages/                  Páginas (HomePage)
+│   ├── config/                 Configuración global (site.ts, navigation.ts, routes.ts)
+│   ├── data/                   mangas.ts (DATOS DE DEMOSTRACIÓN) y genres.ts (catálogo de géneros)
+│   ├── hooks/                  Hooks reutilizables (useDocumentTitle)
+│   ├── lib/                    Funciones puras: orden, búsqueda, capítulos, fechas, formato
+│   ├── pages/                  Páginas: Home, Catalog, Manga (ficha), Chapter, NotFound
+│   ├── router/                 Enrutador mínimo propio (sin dependencias)
 │   ├── styles/                 Estilos globales y tokens de diseño
 │   ├── types/                  Tipos de TypeScript del dominio
 │   ├── App.tsx                 Estructura general: encabezado, contenido y pie
@@ -111,8 +114,8 @@ Implementada en la Fase 2. Todos los valores (colores, radios, sombras, medidas)
 | --- | --- | --- |
 | 1 | Fundamentos: estructura, configuración y documentación | Completada |
 | 2 | Diseño visual y página de inicio (con datos de ejemplo) | Completada |
-| 3 | Página de detalles del manga y datos reales del primer manga | Pendiente |
-| 4 | Lector de capítulos | Pendiente |
+| 3 | Catálogo: fichas, géneros, estados, capítulos y orden (datos de demostración) | Completada |
+| 4 | Lector de capítulos (y datos reales del primer manga) | Pendiente |
 | 5 | Panel de administración privado | Pendiente |
 | 6 | Publicación en Netlify | Pendiente |
 
@@ -120,6 +123,7 @@ El orden y contenido de las fases siguientes es una propuesta y se confirmará a
 
 ## Documentación relacionada
 
+- [PROJECT_STATUS.md](PROJECT_STATUS.md): estado actual, pendientes y problemas conocidos.
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [docs/DECISIONS.md](docs/DECISIONS.md)
 - [public/content/README.md](public/content/README.md)

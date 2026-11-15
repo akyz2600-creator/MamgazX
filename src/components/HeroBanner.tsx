@@ -1,4 +1,5 @@
-import { FORMAT_LABELS, getCoverUrl, getLatestChapter } from '../lib/manga';
+import { routes } from '../config/routes';
+import { FORMAT_LABELS, getCoverUrl, getFirstChapter, getGenreNames, getLatestChapter } from '../lib/manga';
 import type { Manga } from '../types/manga';
 import { Button } from './Button';
 import { Cover } from './Cover';
@@ -25,6 +26,7 @@ export function HeroBanner({ manga }: HeroBannerProps) {
 
 function Featured({ manga }: { manga: Manga }) {
   const latest = getLatestChapter(manga);
+  const first = getFirstChapter(manga);
 
   return (
     <div className={styles.grid}>
@@ -50,9 +52,9 @@ function Featured({ manga }: { manga: Manga }) {
         </div>
 
         <div className={styles.body}>
-          <p className={styles.synopsis}>{manga.description}</p>
+          <p className={styles.synopsis}>{manga.synopsis}</p>
           <ul className={styles.genres} aria-label="Géneros">
-            {manga.genres.map((genre) => (
+            {getGenreNames(manga).map((genre) => (
               <li key={genre} className={styles.genre}>
                 {genre}
               </li>
@@ -62,16 +64,24 @@ function Featured({ manga }: { manga: Manga }) {
 
         <div className={styles.actions}>
           <div className={styles.buttons}>
-            <Button comingSoon describedBy={HINT_ID} icon={<BookIcon />}>
-              Leer ahora
-            </Button>
-            <Button variant="secondary" comingSoon describedBy={HINT_ID} icon={<InfoIcon />}>
+            {first ? (
+              <Button to={routes.chapter(manga.slug, first.number)} icon={<BookIcon />}>
+                Leer ahora
+              </Button>
+            ) : (
+              <Button comingSoon describedBy={HINT_ID} icon={<BookIcon />}>
+                Leer ahora
+              </Button>
+            )}
+            <Button variant="secondary" to={routes.manga(manga.slug)} icon={<InfoIcon />}>
               Ver detalles
             </Button>
           </div>
-          <p id={HINT_ID} className={styles.hint}>
-            El lector y la página de detalles estarán disponibles próximamente.
-          </p>
+          {!first && (
+            <p id={HINT_ID} className={styles.hint}>
+              Aún no hay capítulos publicados.
+            </p>
+          )}
         </div>
       </div>
     </div>

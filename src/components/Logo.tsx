@@ -1,6 +1,8 @@
 import { useId } from 'react';
+import { routes } from '../config/routes';
 import { siteConfig } from '../config/site';
 import { cx } from '../lib/classNames';
+import { Link } from '../router/router';
 import styles from './Logo.module.css';
 
 interface LogoProps {
@@ -10,12 +12,12 @@ interface LogoProps {
 }
 
 /** Logotipo de MangazX: marca "M" luminosa + nombre con la X destacada. */
-export function Logo({ href = '#inicio', className }: LogoProps) {
+export function Logo({ href = routes.home, className }: LogoProps) {
   // Cada instancia necesita su propio id de degradado (hay un logo en el encabezado y otro en el pie).
   const gradientId = `logo-${useId().replace(/:/g, '')}`;
 
   return (
-    <a href={href} className={cx(styles.logo, className)} aria-label={`${siteConfig.name}, ir al inicio`}>
+    <Link to={href} className={cx(styles.logo, className)} aria-label={`${siteConfig.name}, ir al inicio`}>
       <svg className={styles.mark} viewBox="0 0 40 40" aria-hidden="true" focusable="false">
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
@@ -37,6 +39,6 @@ export function Logo({ href = '#inicio', className }: LogoProps) {
       <span className={styles.word}>
         Mangaz<span className={styles.x}>X</span>
       </span>
-    </a>
+    </Link>
   );
 }

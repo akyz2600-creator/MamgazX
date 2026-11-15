@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
-import { getCoverUrl, getLatestChapter, isRecentlyUpdated } from '../lib/manga';
+import { routes } from '../config/routes';
+import { getCoverUrl, getGenreNames, getLatestChapter, isRecentlyUpdated } from '../lib/manga';
+import { Link } from '../router/router';
 import type { Manga } from '../types/manga';
 import { Cover } from './Cover';
 import { StatusBadge } from './StatusBadge';
@@ -7,14 +9,12 @@ import styles from './MangaCard.module.css';
 
 interface MangaCardProps {
   manga: Manga;
-  /** Espacio para un indicador de popularidad (visitas, puntuación…) cuando existan datos reales. */
+  /** Espacio para un indicador en la esquina de la portada (p. ej. lecturas). */
   indicator?: ReactNode;
-  /** Destino al pulsar la tarjeta. Sin `href` la tarjeta es solo informativa (aún no hay página de detalles). */
-  href?: string;
 }
 
-/** Tarjeta reutilizable de manga. Funciona con cualquier `Manga`, sin depender de uno concreto. */
-export function MangaCard({ manga, indicator, href }: MangaCardProps) {
+/** Tarjeta reutilizable de manga. Al pulsarla se abre su ficha. Funciona con cualquier `Manga`. */
+export function MangaCard({ manga, indicator }: MangaCardProps) {
   const latest = getLatestChapter(manga);
   const recent = isRecentlyUpdated(manga);
 
@@ -34,15 +34,11 @@ export function MangaCard({ manga, indicator, href }: MangaCardProps) {
 
       <div className={styles.body}>
         <h3 className={styles.title}>
-          {href ? (
-            <a href={href} className={styles.link}>
-              {manga.title}
-            </a>
-          ) : (
-            manga.title
-          )}
+          <Link to={routes.manga(manga.slug)} className={styles.link}>
+            {manga.title}
+          </Link>
         </h3>
-        <p className={styles.genres}>{manga.genres.slice(0, 2).join(' · ')}</p>
+        <p className={styles.genres}>{getGenreNames(manga).slice(0, 2).join(' · ')}</p>
         <div className={styles.meta}>
           <span className={styles.chapter}>{latest ? `Cap. ${latest.number}` : 'Sin capítulos'}</span>
           <StatusBadge status={manga.status} />

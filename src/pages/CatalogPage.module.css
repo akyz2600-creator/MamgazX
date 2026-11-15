@@ -1,0 +1,46 @@
+.page {
+  display: grid;
+  gap: 1rem;
+  padding-block: 1.25rem var(--section-gap);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.9rem;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  font-weight: 850;
+  letter-spacing: -0.03em;
+}
+
+.title::before {
+  content: '';
+  width: 0.3rem;
+  height: 1em;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-brand);
+}
+
+.count {
+  color: var(--color-text-muted);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.note {
+  font-size: 0.85rem;
+  color: var(--color-text-faint);
+}

@@ -2,6 +2,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  height: 100%; /* todas las tarjetas de una fila miden lo mismo */
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--color-border);

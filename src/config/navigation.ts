@@ -1,15 +1,20 @@
+import { routes } from './routes';
+
 export interface NavItem {
   label: string;
   href: string;
+  /** Indica en qué rutas el enlace se marca como activo. Si falta, nunca se marca. */
+  isActive?: (pathname: string) => boolean;
 }
 
-/**
- * Navegación principal.
- * Provisional: mientras no existan las páginas de catálogo y capítulos, los enlaces
- * llevan a secciones de la página de inicio (anclas). Pasarán a rutas reales más adelante.
- */
+/** Navegación principal (encabezado y pie de página). */
 export const primaryNav: readonly NavItem[] = [
-  { label: 'Inicio', href: '#inicio' },
-  { label: 'Catálogo', href: '#catalogo' },
-  { label: 'Últimos capítulos', href: '#ultimos-mangas' },
+  { label: 'Inicio', href: routes.home, isActive: (pathname) => pathname === '/' },
+  {
+    label: 'Catálogo',
+    href: routes.catalog,
+    isActive: (pathname) => pathname.startsWith('/catalogo') || pathname.startsWith('/manga'),
+  },
+  // Lleva a la sección "Últimos mangas" del inicio; no es una página aparte.
+  { label: 'Últimos capítulos', href: routes.latest },
 ];

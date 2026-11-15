@@ -1,34 +1,50 @@
-/** Tipos del dominio. No dependen de React ni de ningún servicio externo. */
+import type { GenreId } from '../data/genres';
+
+/** Tipos del dominio. Sin dependencias de React. */
 
 export type MangaFormat = 'manga' | 'manhwa';
 
-export type MangaStatus = 'ongoing' | 'completed' | 'hiatus';
+/** En publicación o finalizado. */
+export type MangaStatus = 'ongoing' | 'completed';
 
 export interface Chapter {
-  /** Número del capítulo (1, 2, 3...). Determina la carpeta `001`, `002`, etc. */
+  id: string;
+  /** Número de capítulo (puede ser decimal, p. ej. 10.5). Único dentro de un manga. */
   number: number;
-  /** Título opcional del capítulo. */
   title?: string;
-  /** Cantidad de páginas. Las imágenes se nombran `001.webp` … según este total. */
-  pageCount: number;
-  /** Fecha de publicación en formato ISO (AAAA-MM-DD). */
-  publishedAt?: string;
+  /** Fecha de publicación en formato ISO `AAAA-MM-DD`. */
+  publishedAt: string;
+  /**
+   * Cantidad de páginas. Las imágenes no se listan: se calculan por convención
+   * (`{slug}/chapters/{capítulo}/{página}.webp`, ver ARCHITECTURE.md).
+   */
+  pages: number;
 }
 
 export interface Manga {
-  /** Identificador único y estable; nombre de su carpeta en `public/content/mangas/`. */
+  id: string;
+  /** Identificador estable para la URL (`/manga/{slug}`) y la carpeta de imágenes. */
   slug: string;
   title: string;
-  description: string;
+  alternativeTitle?: string;
+  synopsis: string;
   format: MangaFormat;
   status: MangaStatus;
-  genres: string[];
+  /** Ids del catálogo de géneros (`src/data/genres.ts`). */
+  genres: GenreId[];
   /**
-   * Nombre del archivo de portada dentro de la carpeta del manga (p. ej. `cover.webp`).
+   * Archivo de portada dentro de `public/content/mangas/{slug}/` (p. ej. `cover.webp`).
    * Si falta, la interfaz muestra una portada provisional.
    */
-  cover?: string;
+  coverImage?: string;
   chapters: Chapter[];
-  /** `true` en datos de ejemplo. La interfaz los marca como tales. Se elimina con los datos reales. */
+  /** Contador de lecturas. Debe provenir de un sistema real de estadísticas (fase futura). */
+  views: number;
+  /** Fechas ISO `AAAA-MM-DD`. */
+  createdAt: string;
+  updatedAt: string;
+  /** Fecha del capítulo más reciente; `null` si aún no hay capítulos. Se deriva de `chapters`. */
+  lastChapterAt: string | null;
+  /** `true` en datos de demostración (incluidas las lecturas). Se elimina con los datos reales. */
   isExample?: boolean;
 }

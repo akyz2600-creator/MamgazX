@@ -4,9 +4,17 @@
 
 .header {
   display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.heading {
+  display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  margin-bottom: 1rem;
+  min-width: 0;
 }
 
 .title {
@@ -32,22 +40,18 @@
   font-size: 0.92rem;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.25rem), 1fr));
-  gap: 0.75rem;
+.action {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 2.75rem;
+  padding-inline: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--color-accent-blue);
 }
 
-@media (min-width: 640px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
-    gap: 1rem;
-  }
-}
-
-@media (min-width: 1200px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
-    gap: 1.25rem;
-  }
+.action:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }

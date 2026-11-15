@@ -2,7 +2,7 @@
 
 Este documento explica cómo está organizado el proyecto y cómo debe crecer. Está pensado para que cualquier persona (o IA) pueda añadir funciones sin romper la estructura.
 
-> Estado: **Fase 2**. Existe la página de inicio (encabezado, buscador, banner, secciones, pie) con datos de ejemplo. Todavía no hay lector, página de detalles ni panel de administración.
+> Estado: **Fase 3**. Hay inicio, catálogo, fichas y lista de capítulos con datos de demostración. El lector de imágenes y el panel de administración aún no existen.
 
 ## 1. Principios
 
@@ -23,8 +23,10 @@ mangazx/
 │   ├── components/       Componentes reutilizables
 │   ├── config/           Configuración global
 │   ├── data/             Datos del catálogo
+│   ├── hooks/            Hooks de React reutilizables
 │   ├── lib/              Funciones puras sobre los datos
 │   ├── pages/            Páginas (una por ruta)
+│   ├── router/           Enrutador mínimo propio
 │   ├── styles/           Estilos globales y tokens
 │   ├── types/            Tipos de TypeScript del dominio
 │   ├── App.tsx           Componente raíz
@@ -41,11 +43,13 @@ mangazx/
 | Carpeta | Responsabilidad | Qué NO debe contener |
 | --- | --- | --- |
 | `src/components/` | Piezas de interfaz reutilizables y sin lógica de rutas (botones, tarjetas, barras). | Datos de mangas; llamadas de carga de datos propias. |
+| `src/hooks/` | Hooks de React reutilizables y sin datos propios (`useDocumentTitle`). | Lógica específica de una sola página. |
+| `src/router/` | Enrutador (History API), `Link`, `useLocation`, `useNavigate`. Único lugar que toca `window.history`. | Conocimiento de las páginas o de los datos. |
 | `src/lib/` | Funciones puras y testeables sobre los datos (`searchMangas`, `getLatestChapter`, `getCoverUrl`…). | JSX, estado de React o acceso a datos globales. |
 | `src/pages/` | Una página por ruta. Une datos y componentes. | Estilos o piezas que se reutilicen en más de una página (van a `components/`). |
-| `src/data/` | Datos del catálogo: lista de mangas y sus capítulos, tipados con `Manga`. | Componentes o lógica de interfaz. |
+| `src/data/` | Datos del catálogo: `mangas.ts` (hoy de demostración) y `genres.ts` (catálogo de géneros). | Componentes o lógica de interfaz. |
 | `src/types/` | Tipos e interfaces del dominio (`Manga`, `Chapter`). Sin dependencias de React. | Valores o funciones con efectos. |
-| `src/config/` | Valores globales compartidos (`siteConfig`: nombre, idioma, ruta base de imágenes). | Datos de mangas concretos. |
+| `src/config/` | Valores globales compartidos: `siteConfig`, `routes` (forma de las URL) y `navigation`. | Datos de mangas concretos. |
 | `src/styles/` | `tokens.css` (variables de diseño) y `global.css` (reset y base). | Reglas específicas de un componente: van en su `Componente.module.css` (ver D-010). |
 | `src/assets/` | Recursos que importa el código y que Vite procesa (logo, íconos). | Imágenes de capítulos. |
 | `public/` | Archivos estáticos que se copian sin procesar (favicon, imágenes de contenido). | Código fuente. |
@@ -75,10 +79,15 @@ URL final de una página: `/content/mangas/{slug}/chapters/{capítulo}/{página}
 
 Definido en `src/types/manga.ts`:
 
-- `Manga`: `slug`, `title`, `description`, `format` (`manga` | `manhwa`), `status`, `genres`, `chapters`; opcionales `cover` e `isExample`.
-- `Chapter`: `number`, `pageCount`, y opcionales `title` y `publishedAt`.
+- `Manga`: `id`, `slug`, `title`, `alternativeTitle?`, `synopsis`, `format` (`manga` | `manhwa`), `status` (`ongoing` | `completed`), `genres` (ids), `coverImage?`, `chapters`, `views`, `createdAt`, `updatedAt`, `lastChapterAt`, y `isExample?` (marca los datos de demostración).
+- `Chapter`: `id`, `number`, `title?`, `publishedAt`, `pages` (cantidad de páginas).
+- Géneros: `src/data/genres.ts` es la única lista. Cada manga guarda solo los `id`; `GenreId` se deriva de esa lista, así que un género inexistente no compila. Sirve para mostrar varios géneros por manga y, en el futuro, para filtrar (`manga.genres.includes(id)`).
 
-Las rutas de las imágenes **no se guardan** en los datos: se calculan a partir de `slug`, `chapter.number`, el número de página y `siteConfig.contentBasePath`. Así no hay que listar ~20 capítulos × decenas de páginas a mano, y mover las imágenes (por ejemplo, a otro alojamiento) solo exige cambiar `contentBasePath`.
+**Fechas derivadas.** `lastChapterAt` y `updatedAt` no se escriben a mano: `createManga()` (`src/lib/manga.ts`) los calcula a partir de `chapters`. Al añadir un capítulo, la "última actualización" se corrige sola. `updatedAt` nunca es anterior al último capítulo.
+
+**Lecturas.** `views` es el contador de lecturas. Hoy contiene cifras de demostración (marcadas en la interfaz). "Populares" solo considera mangas con `views > 0`. Cuando exista un sistema real de estadísticas, solo cambia el origen de este número.
+
+Las rutas de las imágenes **no se guardan** en los datos: se calculan a partir de `slug`, `chapter.number`, el número de página y `siteConfig.contentBasePath`. Así no hay que listar ~20 capítulos × decenas de páginas a mano, y mover las imágenes solo exige cambiar `contentBasePath`.
 
 ### 4.3 Cómo se añadirá un manga nuevo
 
@@ -123,25 +132,40 @@ Cuando un módulo crezca y necesite varios archivos propios, se puede agrupar en
 
 | Fase | Impacto en la arquitectura |
 | --- | --- |
-| 2. Diseño e inicio ✅ | Tokens, componentes base, `HomePage`, buscador local y datos de ejemplo en `src/data/mangas.ts`. |
-| 3. Detalle del manga | Primera necesidad de enrutado (ver D-007) y sustitución de los datos de ejemplo por los reales. |
-| 4. Lector | Componentes de lectura en `components/` y su página en `pages/`. |
-| 5. Administración | Se decide cómo editar el catálogo respetando las restricciones de coste. |
-| 6. Publicación | Netlify, usando `netlify.toml`. |
+| 2. Diseño e inicio ✅ | Tokens, componentes base, `HomePage`, buscador local. |
+| 3. Catálogo ✅ | Enrutador propio, `CatalogPage`, `MangaPage`, `ChapterPage` (lector preparado), géneros, orden por recientes/populares, modelo de datos ampliado. |
+| 4. Lector | Sustituye el aviso de `ChapterPage` por las imágenes; datos reales del primer manga. |
+| 5. Administración | Se decide cómo editar el catálogo respetando las restricciones de coste y de servicios. |
+| 6. Publicación | Netlify, usando `netlify.toml` (la regla `/* → /index.html` ya hace funcionar las URL directas). |
 
-## 8. Componentes de la página de inicio (Fase 2)
+## 8. Rutas y páginas
+
+| URL | Página | Notas |
+| --- | --- | --- |
+| `/` | `HomePage` | Banner destacado, "Últimos mangas" y "Populares". |
+| `/catalogo` | `CatalogPage` | Orden: `?orden=populares` (por defecto, más recientes). El orden vive en la URL. |
+| `/manga/{slug}` | `MangaPage` | Ficha: portada, títulos, estado, géneros, datos, sinopsis y capítulos. |
+| `/manga/{slug}/capitulo/{n}` | `ChapterPage` | Lector **preparado**: URL y navegación anterior/siguiente listas; avisa que el lector aún no existe. |
+| cualquier otra | `NotFoundPage` | También para mangas o capítulos inexistentes. |
+
+- `src/config/routes.ts` es el único lugar que conoce la forma de las URL (`routes.manga(slug)`, `matchRoute(pathname)`). El resto del código no escribe rutas a mano.
+- `Link` es un `<a href>` real (se puede abrir en otra pestaña); un clic simple navega sin recargar.
+- Los datos entran por `App` y bajan por props: ninguna página ni componente importa datos por su cuenta.
+
+## 9. Componentes
 
 ```text
-App
+App (RouterProvider)
 ├── Header ── Logo, navegación, SearchBox (+ menú móvil)
-├── main > HomePage
-│   ├── HeroBanner ── Cover, StatusBadge, Button
-│   └── MangaSection (×2: "Últimos mangas" y "Populares")
-│       └── MangaCard ── Cover, StatusBadge     (o EmptyState si no hay datos)
+├── main
+│   ├── HomePage ── HeroBanner, MangaSection ×2 (MangaGrid → MangaCard)
+│   ├── CatalogPage ── SegmentedControl, MangaGrid
+│   ├── MangaPage ── Breadcrumb, Cover, StatusBadge, Button, ChapterList
+│   ├── ChapterPage ── Breadcrumb, EmptyState, Button
+│   └── NotFoundPage ── EmptyState, Button
 └── Footer ── Logo
 ```
 
-- Los datos entran por `App` (`src/data/mangas.ts`) y bajan por props: ningún componente importa datos por su cuenta.
-- `MangaCard` y `MangaSection` aceptan cualquier `Manga`; añadir títulos no exige tocarlos.
-- "Populares" no inventa estadísticas: se alimenta de `popularSlugs` (vacío hasta que existan datos reales) y muestra un estado vacío.
-- `Button` con `comingSoon` deja preparados "Leer ahora" y "Ver detalles" sin fingir que funcionan.
+- `MangaCard` y `MangaGrid` aceptan cualquier `Manga`; añadir títulos no exige tocarlos. La tarjeta abre la ficha.
+- `Button` con `to` es un enlace con aspecto de botón; con `comingSoon` queda preparado para una función que aún no existe sin fingir que funciona.
+- `EmptyState` cubre todas las secciones sin contenido (sin mangas, sin capítulos, populares sin datos).
