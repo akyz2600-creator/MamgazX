@@ -1,0 +1,15 @@
+# Configuración de publicación en Netlify (plan gratuito).
+# En la Fase 1 solo se deja preparada; la publicación se hará en una fase posterior.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# La aplicación será una SPA: cualquier ruta debe servir index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

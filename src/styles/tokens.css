@@ -1,0 +1,22 @@
+/*
+ * Tokens de diseño de MangazX (directrices de identidad visual).
+ * Son valores iniciales de referencia; el diseño definitivo llegará en una fase posterior.
+ */
+:root {
+  /* Fondos: negro azulado */
+  --color-bg: #070a14;
+  --color-surface: #0d1224;
+  --color-surface-raised: #141a33;
+  --color-border: #232b4d;
+
+  /* Texto */
+  --color-text: #e8ecff;
+  --color-text-muted: #8f98c2;
+
+  /* Acentos */
+  --color-accent-violet: #8b5cf6; /* violeta eléctrico */
+  --color-accent-blue: #22d3ee; /* azul neón */
+
+  /* Tipografía */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
