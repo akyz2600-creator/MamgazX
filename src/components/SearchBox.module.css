@@ -1,0 +1,203 @@
+.root {
+  position: relative;
+  width: 100%;
+}
+
+.field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 2.75rem;
+  padding-inline: 0.85rem 0.4rem;
+  gap: 0.55rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
+}
+
+.field:focus-within {
+  border-color: var(--color-accent-violet);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.22);
+  color: var(--color-text);
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 1rem; /* 16px: evita el zoom automático al enfocar en iOS/Android */
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* El foco ya se ve en el contenedor (.field:focus-within); evita el doble recuadro. */
+.input:focus-visible {
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.input::-webkit-search-cancel-button,
+.input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.clear {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color var(--duration) var(--ease);
+}
+
+.clear:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  max-height: min(60vh, 26rem);
+  overflow-y: auto;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-raised);
+  box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.8);
+  animation: panel-in 160ms var(--ease);
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.list {
+  padding: 0.4rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  transition: background-color var(--duration) var(--ease);
+}
+
+@media (hover: hover) {
+  .item:hover {
+    background: var(--color-surface-hover);
+  }
+}
+
+.thumb {
+  flex-shrink: 0;
+  width: 2.75rem;
+  border-radius: var(--radius-sm);
+}
+
+.info {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+
+.name {
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tag {
+  flex-shrink: 0;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+.note {
+  padding: 0.6rem 0.9rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.78rem;
+  color: var(--color-text-faint);
+}
+
+.none {
+  display: grid;
+  justify-items: start;
+  gap: 0.3rem;
+  padding: 1rem;
+}
+
+.noneTitle {
+  font-weight: 700;
+}
+
+.noneText {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.noneClear {
+  margin-top: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  min-height: 2.5rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--duration) var(--ease);
+}
+
+.noneClear:hover {
+  border-color: var(--color-accent-violet);
+}
+
+@media (min-width: 960px) {
+  /* En escritorio el panel es más ancho que el campo y se alinea a la derecha. */
+  .panel {
+    left: auto;
+    width: min(26rem, 90vw);
+  }
+}

@@ -23,7 +23,12 @@ export interface Manga {
   format: MangaFormat;
   status: MangaStatus;
   genres: string[];
-  /** Nombre del archivo de portada dentro de la carpeta del manga (p. ej. `cover.webp`). */
-  cover: string;
+  /**
+   * Nombre del archivo de portada dentro de la carpeta del manga (p. ej. `cover.webp`).
+   * Si falta, la interfaz muestra una portada provisional.
+   */
+  cover?: string;
   chapters: Chapter[];
+  /** `true` en datos de ejemplo. La interfaz los marca como tales. Se elimina con los datos reales. */
+  isExample?: boolean;
 }

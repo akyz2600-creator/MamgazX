@@ -59,3 +59,36 @@ Se deciden cuando su fase lo requiera, no antes:
 - **Decisión:** `strict`, `noUncheckedIndexedAccess`, `noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax` e `isolatedModules` activados.
 - **Motivo:** detectar errores pronto; `noUncheckedIndexedAccess` es especialmente útil para listas de capítulos y páginas.
 - **Consecuencia:** `npm run build` ejecuta `tsc --noEmit` antes de `vite build`, de modo que un error de tipos impide generar la versión de producción.
+
+## D-010 · Estilos con CSS Modules
+
+- **Decisión:** cada componente tiene su `Componente.module.css`. Los valores compartidos salen de `src/styles/tokens.css`; `global.css` solo contiene reset, utilidades (`.container`, `.visually-hidden`) y accesibilidad.
+- **Motivo:** Vite soporta CSS Modules sin dependencias nuevas; los nombres de clase quedan acotados al componente y no chocan entre sí. Resuelve el punto abierto de D-007.
+- **Alternativas descartadas:** librerías de estilos o Tailwind (dependencias innecesarias para este tamaño de proyecto).
+
+## D-011 · Sin librería de enrutado todavía
+
+- **Decisión:** la Fase 2 solo tiene la página de inicio; la navegación usa anclas (`#catalogo`, `#ultimos-mangas`) definidas en `src/config/navigation.ts`.
+- **Motivo:** no hay otras páginas que justifiquen un enrutador (ver D-007). "Catálogo" y "Últimos capítulos" apuntan a secciones de la propia página y pasarán a rutas reales cuando existan.
+- **Consecuencia:** no se simula ninguna página que no exista.
+
+## D-012 · Datos de ejemplo claramente marcados
+
+- **Decisión:** `src/data/mangas.ts` contiene un único manga ficticio (`isExample: true`) y la interfaz muestra la etiqueta "Ejemplo" / "Datos de ejemplo".
+- **Motivo:** no atribuir datos reales a una obra inexistente. Es el único archivo a reemplazar para publicar el primer manga.
+- **Popularidad:** `popularSlugs` está vacío a propósito; no se inventan visitas, puntuaciones ni rankings.
+
+## D-013 · Portada opcional con marcador
+
+- **Decisión:** `Manga.cover` pasó a ser opcional. Sin portada, o si la imagen falla al cargar, `Cover` muestra un marcador generado (iniciales sobre degradado).
+- **Motivo:** no inventar una portada definitiva y evitar imágenes rotas.
+
+## D-014 · Buscador local
+
+- **Decisión:** `searchMangas` (`src/lib/manga.ts`) filtra por título ignorando mayúsculas y acentos; todas las palabras escritas deben aparecer en el título. Sin backend ni librerías.
+- **Alcance:** busca solo por nombre, como se pidió. Los resultados aún no enlazan a una página de detalles (se indica en el panel).
+
+## D-015 · Accesibilidad y rendimiento base
+
+- Objetivos táctiles de al menos 44 px, campos de 16 px (evita el zoom en móvil), enlace "Saltar al contenido", foco visible, `aria-current`, `prefers-reduced-motion` respetado, hover solo con `@media (hover: hover)`.
+- Fuentes del sistema (sin descargas ni servicios externos), imágenes con `loading="lazy"` y proporción fija 2:3 para evitar saltos de diseño.

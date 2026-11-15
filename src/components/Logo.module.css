@@ -1,0 +1,39 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+}
+
+.mark {
+  width: 2.1rem;
+  height: 2.1rem;
+  transition: filter var(--duration) var(--ease), transform var(--duration) var(--ease);
+}
+
+.word {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.x {
+  display: inline-block;
+  margin-left: 0.04em;
+  font-size: 1.12em;
+  font-weight: 900;
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  transform: skewX(-8deg);
+}
+
+@media (hover: hover) {
+  .logo:hover .mark {
+    filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+    transform: rotate(-4deg);
+  }
+}

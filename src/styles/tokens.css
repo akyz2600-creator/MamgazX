@@ -1,22 +1,51 @@
 /*
- * Tokens de diseño de MangazX (directrices de identidad visual).
- * Son valores iniciales de referencia; el diseño definitivo llegará en una fase posterior.
+ * Tokens de diseño de MangazX (identidad visual).
+ * Único lugar donde viven colores, radios, sombras y medidas compartidas.
+ * Los componentes usan estas variables; no deben repetir valores literales.
  */
 :root {
-  /* Fondos: negro azulado */
+  /* Fondos: negro azulado y superficies gris oscuro */
   --color-bg: #070a14;
-  --color-surface: #0d1224;
-  --color-surface-raised: #141a33;
-  --color-border: #232b4d;
+  --color-bg-elevated: #0b0f1c;
+  --color-surface: #0f1322;
+  --color-surface-raised: #161b2e;
+  --color-surface-hover: #1c2239;
+  --color-border: #232a45;
+  --color-border-strong: #343e66;
 
   /* Texto */
-  --color-text: #e8ecff;
-  --color-text-muted: #8f98c2;
+  --color-text: #e8ebf7;
+  --color-text-muted: #98a1c2;
+  --color-text-faint: #6b7499;
 
-  /* Acentos */
-  --color-accent-violet: #8b5cf6; /* violeta eléctrico */
-  --color-accent-blue: #22d3ee; /* azul neón */
+  /* Acentos: violeta eléctrico (principal) y azul neón (secundario) */
+  --color-primary: #7c3aed; /* fondo de botones: contraste AA con texto blanco */
+  --color-primary-hover: #8b5cf6;
+  --color-accent-violet: #8b5cf6;
+  --color-accent-blue: #22d3ee;
+  --color-focus: #22d3ee;
+  --gradient-brand: linear-gradient(135deg, #8b5cf6 0%, #22d3ee 100%);
 
-  /* Tipografía */
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Tipografía (fuentes del sistema: sin servicios externos ni descargas) */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Formas */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-pill: 999px;
+
+  /* Sombras y brillos (usar con moderación) */
+  --shadow-card: 0 10px 30px -14px rgba(0, 0, 0, 0.7);
+  --glow-violet: 0 0 0 1px rgba(139, 92, 246, 0.5), 0 12px 32px -12px rgba(139, 92, 246, 0.55);
+
+  /* Layout */
+  --container-max: 80rem;
+  --gutter: clamp(1rem, 4vw, 2rem);
+  --header-height: 3.5rem;
+  --section-gap: clamp(2.25rem, 6vw, 4rem);
+
+  /* Movimiento */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --duration: 180ms;
 }

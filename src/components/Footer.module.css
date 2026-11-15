@@ -1,0 +1,89 @@
+.footer {
+  margin-top: var(--section-gap);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+}
+
+.inner {
+  display: grid;
+  gap: 1.75rem;
+  padding-block: 2.25rem 1.75rem;
+}
+
+.brand {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+}
+
+.about {
+  max-width: 24rem;
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+}
+
+.group {
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
+}
+
+.heading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.list {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.link,
+.soon {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.25rem; /* objetivo táctil cómodo */
+  font-size: 0.92rem;
+}
+
+.link {
+  width: fit-content;
+  color: var(--color-text-muted);
+  transition: color var(--duration) var(--ease);
+}
+
+.link:hover {
+  color: var(--color-accent-blue);
+}
+
+.soon {
+  color: var(--color-text-faint);
+}
+
+.tag {
+  padding: 0.05rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+}
+
+.legal {
+  border-top: 1px solid var(--color-border);
+}
+
+.copyright {
+  padding-block: 1rem;
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+}
+
+@media (min-width: 720px) {
+  .inner {
+    grid-template-columns: 1.2fr 1fr 1.4fr;
+    gap: 2.5rem;
+  }
+}

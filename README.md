@@ -2,7 +2,7 @@
 
 Plataforma web moderna para leer **manga y manhwa en español**, gratis y sin necesidad de registrarse.
 
-> Estado actual: **Fase 1 — Fundamentos del proyecto**. Todavía no existe catálogo, lector ni diseño definitivo.
+> Estado actual: **Fase 2 — Diseño visual y página de inicio** (terminada). Existe la página de inicio con datos de ejemplo. Todavía no hay lector, página de detalles ni panel de administración.
 
 ## Objetivo
 
@@ -60,13 +60,17 @@ mangazx/
 │       └── mangas/             Imágenes: {slug}/chapters/{capítulo}/{página}.webp
 ├── src/
 │   ├── assets/                 Recursos que importa el código (logos, íconos)
-│   ├── components/             Componentes reutilizables
-│   ├── config/                 Configuración global (site.ts)
-│   ├── data/                   Datos de los mangas (catálogo)
-│   ├── pages/                  Páginas (una por ruta)
+│   ├── components/             Componentes reutilizables (cada uno con su .module.css)
+│   │   ├── Header, SearchBox, Logo, Footer
+│   │   ├── HeroBanner, MangaSection, MangaCard, Cover
+│   │   └── Button, StatusBadge, EmptyState, icons
+│   ├── config/                 Configuración global (site.ts, navigation.ts)
+│   ├── data/                   Datos de los mangas (mangas.ts: DATOS DE EJEMPLO)
+│   ├── lib/                    Funciones puras: búsqueda, último capítulo, rutas de portada
+│   ├── pages/                  Páginas (HomePage)
 │   ├── styles/                 Estilos globales y tokens de diseño
 │   ├── types/                  Tipos de TypeScript del dominio
-│   ├── App.tsx                 Componente raíz (provisional en Fase 1)
+│   ├── App.tsx                 Estructura general: encabezado, contenido y pie
 │   ├── main.tsx                Punto de entrada
 │   └── vite-env.d.ts
 ├── ARCHITECTURE.md             Arquitectura del proyecto
@@ -80,7 +84,7 @@ mangazx/
 
 ## Identidad visual
 
-Documentada aquí; se implementará en fases posteriores. Los valores iniciales están en `src/styles/tokens.css`.
+Implementada en la Fase 2. Todos los valores (colores, radios, sombras, medidas) viven en `src/styles/tokens.css`; los componentes no repiten valores literales.
 
 - **Estilo:** moderno, geek, tecnológico, inspirado en plataformas de manga y cultura anime.
 - **Tema:** oscuro, fondo negro azulado (`#070a14`).
@@ -98,18 +102,19 @@ Documentada aquí; se implementará en fases posteriores. Los valores iniciales 
 6. Ningún componente ni página debe depender de un manga concreto.
 7. Imágenes siempre bajo `public/content/mangas/` siguiendo la convención.
 8. Documentar las decisiones técnicas relevantes.
+9. Estilos de componentes con CSS Modules (`Componente.module.css`); valores compartidos solo desde `tokens.css`.
+10. Los datos de ejemplo se marcan con `isExample` y viven únicamente en `src/data/mangas.ts`.
 
 ## Plan de fases
 
 | Fase | Contenido | Estado |
 | --- | --- | --- |
 | 1 | Fundamentos: estructura, configuración y documentación | Completada |
-| 2 | Datos del manga y catálogo | Pendiente |
-| 3 | Página de detalles del manga | Pendiente |
+| 2 | Diseño visual y página de inicio (con datos de ejemplo) | Completada |
+| 3 | Página de detalles del manga y datos reales del primer manga | Pendiente |
 | 4 | Lector de capítulos | Pendiente |
-| 5 | Diseño visual definitivo y responsive | Pendiente |
-| 6 | Panel de administración privado | Pendiente |
-| 7 | Publicación en Netlify | Pendiente |
+| 5 | Panel de administración privado | Pendiente |
+| 6 | Publicación en Netlify | Pendiente |
 
 El orden y contenido de las fases siguientes es una propuesta y se confirmará antes de empezar cada una.
 

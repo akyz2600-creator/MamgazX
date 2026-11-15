@@ -1,0 +1,206 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-border);
+  background:
+    radial-gradient(60% 90% at 12% 0%, rgba(139, 92, 246, 0.2), transparent 70%),
+    radial-gradient(50% 80% at 95% 100%, rgba(34, 211, 238, 0.12), transparent 70%),
+    var(--color-bg-elevated);
+}
+
+/* Retícula tenue: sugiere "tecnología" sin recargar. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.07) 1px, transparent 1px);
+  background-size: 2.5rem 2.5rem;
+  mask-image: linear-gradient(180deg, #000, transparent 85%);
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  padding-block: 1.25rem 1.75rem;
+}
+
+/* Móvil: portada pequeña junto al título para no ocupar tanto alto. */
+.grid {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  grid-template-areas:
+    'cover head'
+    'body body'
+    'actions actions';
+  gap: 1rem;
+  align-items: start;
+}
+
+.coverWrap {
+  grid-area: cover;
+}
+
+.cover {
+  box-shadow: var(--glow-violet);
+}
+
+/* En móvil no crea caja propia: sus hijos se colocan directamente en la cuadrícula. */
+.text {
+  display: contents;
+}
+
+.head {
+  grid-area: head;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.body {
+  grid-area: body;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.actions {
+  grid-area: actions;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent-blue);
+}
+
+.example {
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--color-text-muted);
+}
+
+.title {
+  font-size: clamp(1.45rem, 6vw, 3rem);
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.format {
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.synopsis {
+  color: var(--color-text-muted);
+  max-width: 42rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.genre {
+  padding: 0.2rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: rgba(139, 92, 246, 0.14);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #cdbcff;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+}
+
+.welcome {
+  display: grid;
+  gap: 0.5rem;
+  padding-block: 1.5rem;
+}
+
+/* Tablet y escritorio: texto a la izquierda, portada grande a la derecha. */
+@media (min-width: 768px) {
+  .inner {
+    padding-block: 2.5rem 3rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr clamp(11rem, 22vw, 17rem);
+    grid-template-areas: 'text cover';
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .text {
+    grid-area: text;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+  }
+
+  .coverWrap {
+    justify-self: end;
+    width: 100%;
+  }
+
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .synopsis {
+    font-size: 1.05rem;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+  }
+}
+
+@media (min-width: 1200px) {
+  .inner {
+    padding-block: 3.5rem 4rem;
+  }
+}

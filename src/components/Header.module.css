@@ -1,0 +1,168 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(7, 10, 20, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Móvil: una fila compacta (logo + botones). Menú y buscador se despliegan debajo. */
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.75rem;
+  min-height: var(--header-height);
+}
+
+.logo {
+  order: 1;
+  margin-right: auto;
+}
+
+.toggles {
+  order: 2;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.toggle {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+}
+
+.toggle:active,
+.toggleActive {
+  background: rgba(139, 92, 246, 0.18);
+  color: #cdbcff;
+}
+
+.search {
+  order: 3;
+  display: none;
+  flex-basis: 100%;
+  padding-bottom: 0.75rem;
+}
+
+.searchOpen {
+  display: block;
+}
+
+.nav {
+  order: 4;
+  display: none;
+  flex-basis: 100%;
+  padding-bottom: 0.5rem;
+}
+
+.navOpen {
+  display: block;
+  animation: drop-in 180ms var(--ease);
+}
+
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.links {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: 0.75rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+}
+
+.link:active {
+  background: rgba(139, 92, 246, 0.18);
+}
+
+.linkActive {
+  color: var(--color-text);
+  background: rgba(139, 92, 246, 0.14);
+}
+
+/* Escritorio: todo en una sola fila, sin botones de despliegue. */
+@media (min-width: 960px) {
+  .bar {
+    flex-wrap: nowrap;
+    column-gap: 2rem;
+    min-height: 4rem;
+  }
+
+  .logo {
+    margin-right: 0;
+  }
+
+  .toggles {
+    display: none;
+  }
+
+  .nav {
+    order: 2;
+    display: block;
+    flex-basis: auto;
+    padding: 0;
+  }
+
+  .links {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .link {
+    position: relative;
+    min-height: 2.5rem;
+  }
+
+  @media (hover: hover) {
+    .link:hover {
+      color: var(--color-text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  /* Subrayado de acento en la página activa */
+  .linkActive::after {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.2rem;
+    height: 2px;
+    border-radius: var(--radius-pill);
+    background: var(--gradient-brand);
+  }
+
+  .linkActive {
+    background: transparent;
+  }
+
+  .search {
+    order: 3;
+    display: block;
+    flex: 0 1 20rem;
+    margin-left: auto;
+    padding: 0;
+  }
+}

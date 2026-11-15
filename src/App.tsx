@@ -1,16 +1,24 @@
-import { siteConfig } from './config/site';
+import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { featuredSlug, mangas, popularSlugs } from './data/mangas';
+import { HomePage } from './pages/HomePage';
 
 /**
- * Pantalla provisional de la Fase 1.
- * Solo confirma que la cadena React + TypeScript + Vite funciona.
- * Se reemplazará cuando se desarrollen las páginas reales (Fase 2 en adelante).
+ * Estructura general del sitio. Los datos se cargan aquí y se pasan hacia abajo,
+ * de modo que los componentes no dependen de dónde vengan.
+ * Por ahora solo existe la página de inicio; el enrutado se decidirá con la página de detalles.
  */
 export default function App() {
   return (
-    <main className="placeholder">
-      <h1>{siteConfig.name}</h1>
-      <p>{siteConfig.tagline}</p>
-      <small>Fase 1 · Fundamentos del proyecto</small>
-    </main>
+    <>
+      <a className="skip-link" href="#contenido">
+        Saltar al contenido
+      </a>
+      <Header mangas={mangas} />
+      <main id="contenido">
+        <HomePage mangas={mangas} featuredSlug={featuredSlug} popularSlugs={popularSlugs} />
+      </main>
+      <Footer />
+    </>
   );
 }

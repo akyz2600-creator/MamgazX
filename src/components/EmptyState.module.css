@@ -1,0 +1,77 @@
+.empty {
+  position: relative;
+  overflow: hidden;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.ghosts {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  padding: 0.75rem;
+  opacity: 0.4;
+  /* Se desvanecen hacia el centro para que el texto se lea bien. */
+  mask-image: radial-gradient(ellipse at center, transparent 25%, #000 85%);
+}
+
+.ghost {
+  border-radius: var(--radius-md);
+  background: linear-gradient(160deg, var(--color-surface-raised), var(--color-surface));
+  border: 1px solid var(--color-border);
+}
+
+/* En pantallas pequeñas solo caben dos siluetas. */
+.ghost:nth-child(n + 3) {
+  display: none;
+}
+
+.content {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  max-width: 34rem;
+  margin-inline: auto;
+  padding: 2.25rem 1.25rem;
+  text-align: center;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 0.4rem;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--color-accent-violet);
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.text {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+@media (min-width: 640px) {
+  .ghosts {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .ghost:nth-child(n + 3) {
+    display: block;
+  }
+
+  .content {
+    padding-block: 3rem;
+  }
+}

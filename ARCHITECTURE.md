@@ -2,7 +2,7 @@
 
 Este documento explica cómo está organizado el proyecto y cómo debe crecer. Está pensado para que cualquier persona (o IA) pueda añadir funciones sin romper la estructura.
 
-> Estado: **Fase 1**. La estructura existe y está documentada; todavía no hay catálogo, lector ni panel de administración.
+> Estado: **Fase 2**. Existe la página de inicio (encabezado, buscador, banner, secciones, pie) con datos de ejemplo. Todavía no hay lector, página de detalles ni panel de administración.
 
 ## 1. Principios
 
@@ -23,6 +23,7 @@ mangazx/
 │   ├── components/       Componentes reutilizables
 │   ├── config/           Configuración global
 │   ├── data/             Datos del catálogo
+│   ├── lib/              Funciones puras sobre los datos
 │   ├── pages/            Páginas (una por ruta)
 │   ├── styles/           Estilos globales y tokens
 │   ├── types/            Tipos de TypeScript del dominio
@@ -40,11 +41,12 @@ mangazx/
 | Carpeta | Responsabilidad | Qué NO debe contener |
 | --- | --- | --- |
 | `src/components/` | Piezas de interfaz reutilizables y sin lógica de rutas (botones, tarjetas, barras). | Datos de mangas; llamadas de carga de datos propias. |
+| `src/lib/` | Funciones puras y testeables sobre los datos (`searchMangas`, `getLatestChapter`, `getCoverUrl`…). | JSX, estado de React o acceso a datos globales. |
 | `src/pages/` | Una página por ruta. Une datos y componentes. | Estilos o piezas que se reutilicen en más de una página (van a `components/`). |
 | `src/data/` | Datos del catálogo: lista de mangas y sus capítulos, tipados con `Manga`. | Componentes o lógica de interfaz. |
 | `src/types/` | Tipos e interfaces del dominio (`Manga`, `Chapter`). Sin dependencias de React. | Valores o funciones con efectos. |
 | `src/config/` | Valores globales compartidos (`siteConfig`: nombre, idioma, ruta base de imágenes). | Datos de mangas concretos. |
-| `src/styles/` | `tokens.css` (variables de diseño) y `global.css` (reset y base). | Reglas específicas de un componente, salvo que se decida otra estrategia (ver `docs/DECISIONS.md`). |
+| `src/styles/` | `tokens.css` (variables de diseño) y `global.css` (reset y base). | Reglas específicas de un componente: van en su `Componente.module.css` (ver D-010). |
 | `src/assets/` | Recursos que importa el código y que Vite procesa (logo, íconos). | Imágenes de capítulos. |
 | `public/` | Archivos estáticos que se copian sin procesar (favicon, imágenes de contenido). | Código fuente. |
 | `docs/` | Decisiones técnicas y guías. | Documentación duplicada del README. |
@@ -73,7 +75,7 @@ URL final de una página: `/content/mangas/{slug}/chapters/{capítulo}/{página}
 
 Definido en `src/types/manga.ts`:
 
-- `Manga`: `slug`, `title`, `description`, `format` (`manga` | `manhwa`), `status`, `genres`, `cover`, `chapters`.
+- `Manga`: `slug`, `title`, `description`, `format` (`manga` | `manhwa`), `status`, `genres`, `chapters`; opcionales `cover` e `isExample`.
 - `Chapter`: `number`, `pageCount`, y opcionales `title` y `publishedAt`.
 
 Las rutas de las imágenes **no se guardan** en los datos: se calculan a partir de `slug`, `chapter.number`, el número de página y `siteConfig.contentBasePath`. Así no hay que listar ~20 capítulos × decenas de páginas a mano, y mover las imágenes (por ejemplo, a otro alojamiento) solo exige cambiar `contentBasePath`.
@@ -121,9 +123,25 @@ Cuando un módulo crezca y necesite varios archivos propios, se puede agrupar en
 
 | Fase | Impacto en la arquitectura |
 | --- | --- |
-| 2. Datos y catálogo | Se rellena `src/data/`, se añade una función para construir rutas de imágenes y la página de catálogo. |
-| 3. Detalle del manga | Primera necesidad de enrutado; se decidirá entonces (ver `docs/DECISIONS.md`). |
+| 2. Diseño e inicio ✅ | Tokens, componentes base, `HomePage`, buscador local y datos de ejemplo en `src/data/mangas.ts`. |
+| 3. Detalle del manga | Primera necesidad de enrutado (ver D-007) y sustitución de los datos de ejemplo por los reales. |
 | 4. Lector | Componentes de lectura en `components/` y su página en `pages/`. |
-| 5. Diseño definitivo | Se aplican los tokens de `styles/tokens.css`. |
-| 6. Administración | Se decide cómo editar el catálogo respetando las restricciones de coste. |
-| 7. Publicación | Netlify, usando `netlify.toml`. |
+| 5. Administración | Se decide cómo editar el catálogo respetando las restricciones de coste. |
+| 6. Publicación | Netlify, usando `netlify.toml`. |
+
+## 8. Componentes de la página de inicio (Fase 2)
+
+```text
+App
+├── Header ── Logo, navegación, SearchBox (+ menú móvil)
+├── main > HomePage
+│   ├── HeroBanner ── Cover, StatusBadge, Button
+│   └── MangaSection (×2: "Últimos mangas" y "Populares")
+│       └── MangaCard ── Cover, StatusBadge     (o EmptyState si no hay datos)
+└── Footer ── Logo
+```
+
+- Los datos entran por `App` (`src/data/mangas.ts`) y bajan por props: ningún componente importa datos por su cuenta.
+- `MangaCard` y `MangaSection` aceptan cualquier `Manga`; añadir títulos no exige tocarlos.
+- "Populares" no inventa estadísticas: se alimenta de `popularSlugs` (vacío hasta que existan datos reales) y muestra un estado vacío.
+- `Button` con `comingSoon` deja preparados "Leer ahora" y "Ver detalles" sin fingir que funcionan.
