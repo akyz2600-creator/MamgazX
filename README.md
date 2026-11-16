@@ -2,7 +2,7 @@
 
 Plataforma web moderna para leer **manga y manhwa en español**, gratis y sin necesidad de registrarse.
 
-> Estado actual: **Fase 4A — Preparación de Firebase y Firestore** (código listo; falta la configuración real de Firebase). Hay inicio, catálogo con orden, fichas de manga y lista de capítulos, todavía con datos de demostración. El lector de imágenes y el panel de administración aún no existen. Ver [PROJECT_STATUS.md](PROJECT_STATUS.md).
+> Estado actual: **Fase 4A — Preparación de Firebase y Firestore** (terminada y verificada). Hay inicio, catálogo con orden, fichas de manga y lista de capítulos, todavía con datos de demostración. El lector de imágenes y el panel de administración aún no existen. Ver [PROJECT_STATUS.md](PROJECT_STATUS.md).
 
 ## Objetivo
 
@@ -131,7 +131,7 @@ Implementada en la Fase 2. Todos los valores (colores, radios, sombras, medidas)
 | 1 | Fundamentos: estructura, configuración y documentación | Completada |
 | 2 | Diseño visual y página de inicio (con datos de ejemplo) | Completada |
 | 3 | Catálogo: fichas, géneros, estados, capítulos y orden (datos de demostración) | Completada |
-| 4A | Firebase y Firestore: SDK, variables de entorno, estructura, reglas e índices | Código listo; falta configurar el proyecto de Firebase |
+| 4A | Firebase y Firestore: SDK, variables de entorno, estructura, reglas e índices | Completada |
 | 4B | Lectura del catálogo desde Firestore (con los datos de demostración como alternativa) | Pendiente |
 | 5 | Lector de capítulos (y datos reales del primer manga) | Pendiente |
 | 6 | Autenticación del administrador, panel privado y subida de imágenes a R2 | Pendiente |

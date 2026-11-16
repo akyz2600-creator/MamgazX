@@ -140,7 +140,7 @@ Cuando un módulo crezca y necesite varios archivos propios, se puede agrupar en
 | --- | --- |
 | 2. Diseño e inicio ✅ | Tokens, componentes base, `HomePage`, buscador local. |
 | 3. Catálogo ✅ | Enrutador propio, `CatalogPage`, `MangaPage`, `ChapterPage` (lector preparado), géneros, orden por recientes/populares, modelo de datos ampliado. |
-| 4A. Firebase ✅ (código) | `src/firebase/`, variables de entorno, estructura de Firestore, reglas e índices. La interfaz no cambia. |
+| 4A. Firebase ✅ | `src/firebase/`, variables de entorno, estructura de Firestore, reglas e índices. La interfaz no cambia. |
 | 4B. Lectura desde Firestore | Capa de lectura en `src/data/` y conversor a los tipos de interfaz; datos de demostración como alternativa. |
 | 5. Lector | Sustituye el aviso de `ChapterPage` por las imágenes; datos reales del primer manga. |
 | 6. Administración | Autenticación del administrador (`/admins/{uid}`), panel privado y subida de imágenes a R2. |
