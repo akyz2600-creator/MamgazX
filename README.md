@@ -2,7 +2,7 @@
 
 Plataforma web moderna para leer **manga y manhwa en español**, gratis y sin necesidad de registrarse.
 
-> Estado actual: **Fase 3 — Catálogo** (terminada, con datos de demostración). Hay inicio, catálogo con orden, fichas de manga y lista de capítulos. El lector de imágenes y el panel de administración aún no existen. Ver [PROJECT_STATUS.md](PROJECT_STATUS.md).
+> Estado actual: **Fase 4A — Preparación de Firebase y Firestore** (código listo; falta la configuración real de Firebase). Hay inicio, catálogo con orden, fichas de manga y lista de capítulos, todavía con datos de demostración. El lector de imágenes y el panel de administración aún no existen. Ver [PROJECT_STATUS.md](PROJECT_STATUS.md).
 
 ## Objetivo
 
@@ -20,9 +20,19 @@ Que cualquier visitante pueda leer manga y manhwa en español desde Android, tab
 | TypeScript | Tipado estático |
 | Vite | Servidor de desarrollo y compilación |
 | GitHub | Repositorio y control de versiones |
-| Netlify (plan gratuito) | Publicación futura |
+| Firebase Firestore | Datos de mangas, capítulos y géneros (preparado en la Fase 4A, aún no conectado a la interfaz) |
+| Cloudflare R2 | Imágenes de portadas y páginas (fase posterior) |
+| Cloudflare Pages | Publicación futura |
 
-Restricciones: proyecto gratuito; sin Cloudflare, Firebase, Supabase ni servicios de pago; dependencias mínimas.
+Restricciones: proyecto gratuito; sin Supabase ni Firebase Storage (las imágenes irán a R2); dependencias mínimas. Ver D-023 en [docs/DECISIONS.md](docs/DECISIONS.md).
+
+## Configuración de Firebase
+
+1. Copia `.env.example` a `.env.local` (no se sube a GitHub) y completa los valores de la app web de tu proyecto de Firebase.
+2. Publica las reglas: `npx firebase-tools deploy --only firestore:rules,firestore:indexes --project <ID_DEL_PROYECTO>`.
+3. Sin esas variables el sitio sigue funcionando con los datos de demostración.
+
+Más detalle en [PROJECT_STATUS.md](PROJECT_STATUS.md).
 
 ## Requisitos
 
@@ -67,6 +77,7 @@ mangazx/
 │   │   └── Button, StatusBadge, EmptyState, icons
 │   ├── config/                 Configuración global (site.ts, navigation.ts, routes.ts)
 │   ├── data/                   mangas.ts (DATOS DE DEMOSTRACIÓN) y genres.ts (catálogo de géneros)
+│   ├── firebase/               Firebase: client.ts (inicialización), types.ts (documentos), collections.ts
 │   ├── hooks/                  Hooks reutilizables (useDocumentTitle)
 │   ├── lib/                    Funciones puras: orden, búsqueda, capítulos, fechas, formato
 │   ├── pages/                  Páginas: Home, Catalog, Manga (ficha), Chapter, NotFound
@@ -76,10 +87,15 @@ mangazx/
 │   ├── App.tsx                 Estructura general: encabezado, contenido y pie
 │   ├── main.tsx                Punto de entrada
 │   └── vite-env.d.ts
+├── .env.example                Plantilla de variables de entorno (Firebase)
 ├── ARCHITECTURE.md             Arquitectura del proyecto
+├── PROJECT_STATUS.md           Estado y seguimiento
 ├── README.md
+├── firebase.json               Rutas de reglas e índices de Firestore
+├── firestore.rules             Reglas de seguridad de Firestore
+├── firestore.indexes.json      Índices de Firestore
 ├── index.html
-├── netlify.toml                Configuración de Netlify
+├── netlify.toml                Configuración antigua de Netlify (sin uso, ver D-023)
 ├── package.json
 ├── tsconfig.json
 └── vite.config.ts
@@ -115,9 +131,11 @@ Implementada en la Fase 2. Todos los valores (colores, radios, sombras, medidas)
 | 1 | Fundamentos: estructura, configuración y documentación | Completada |
 | 2 | Diseño visual y página de inicio (con datos de ejemplo) | Completada |
 | 3 | Catálogo: fichas, géneros, estados, capítulos y orden (datos de demostración) | Completada |
-| 4 | Lector de capítulos (y datos reales del primer manga) | Pendiente |
-| 5 | Panel de administración privado | Pendiente |
-| 6 | Publicación en Netlify | Pendiente |
+| 4A | Firebase y Firestore: SDK, variables de entorno, estructura, reglas e índices | Código listo; falta configurar el proyecto de Firebase |
+| 4B | Lectura del catálogo desde Firestore (con los datos de demostración como alternativa) | Pendiente |
+| 5 | Lector de capítulos (y datos reales del primer manga) | Pendiente |
+| 6 | Autenticación del administrador, panel privado y subida de imágenes a R2 | Pendiente |
+| 7 | Publicación en Cloudflare Pages | Pendiente |
 
 El orden y contenido de las fases siguientes es una propuesta y se confirmará antes de empezar cada una.
 

@@ -2,13 +2,13 @@
 
 Este documento explica cómo está organizado el proyecto y cómo debe crecer. Está pensado para que cualquier persona (o IA) pueda añadir funciones sin romper la estructura.
 
-> Estado: **Fase 3**. Hay inicio, catálogo, fichas y lista de capítulos con datos de demostración. El lector de imágenes y el panel de administración aún no existen.
+> Estado: **Fase 4A**. Hay inicio, catálogo, fichas y lista de capítulos con datos de demostración, y la infraestructura de Firebase está preparada (sección 10) pero aún no conectada a la interfaz. El lector de imágenes y el panel de administración aún no existen.
 
 ## 1. Principios
 
 1. **Catálogo, no un solo manga.** El código nunca menciona un manga concreto. Un manga es un dato (`Manga`), no una parte del código.
 2. **Datos separados de la interfaz.** Los componentes reciben datos; no los definen.
-3. **Sitio estático.** Sin servidor ni base de datos: todo se sirve como archivos desde Netlify (plan gratuito).
+3. **Sitio estático con datos en Firestore.** No hay servidor propio. Hoy todo se sirve como archivos; desde la Fase 4 el catálogo vivirá en Firestore y las imágenes en Cloudflare R2, con publicación en Cloudflare Pages (D-023). Los lectores nunca necesitan cuenta.
 4. **Simplicidad primero.** Se añade una dependencia o una capa de abstracción solo cuando hay una necesidad real, no una posible.
 
 ## 2. Organización del proyecto
@@ -23,6 +23,7 @@ mangazx/
 │   ├── components/       Componentes reutilizables
 │   ├── config/           Configuración global
 │   ├── data/             Datos del catálogo
+│   ├── firebase/         Firebase: inicialización, tipos de documentos, colecciones
 │   ├── hooks/            Hooks de React reutilizables
 │   ├── lib/              Funciones puras sobre los datos
 │   ├── pages/            Páginas (una por ruta)
@@ -31,8 +32,12 @@ mangazx/
 │   ├── types/            Tipos de TypeScript del dominio
 │   ├── App.tsx           Componente raíz
 │   └── main.tsx          Punto de entrada
+├── .env.example          Plantilla de variables de entorno (Firebase)
+├── firebase.json         Rutas de reglas e índices de Firestore
+├── firestore.rules       Reglas de seguridad de Firestore
+├── firestore.indexes.json  Índices de Firestore
 ├── index.html            HTML base de Vite
-├── netlify.toml          Configuración de publicación
+├── netlify.toml          Configuración antigua de publicación (sin uso, ver D-023)
 ├── package.json
 ├── tsconfig.json
 └── vite.config.ts
@@ -43,6 +48,7 @@ mangazx/
 | Carpeta | Responsabilidad | Qué NO debe contener |
 | --- | --- | --- |
 | `src/components/` | Piezas de interfaz reutilizables y sin lógica de rutas (botones, tarjetas, barras). | Datos de mangas; llamadas de carga de datos propias. |
+| `src/firebase/` | Único lugar que inicializa Firebase (`client.ts`), tipos de los documentos de Firestore (`types.ts`) y nombres de colecciones (`collections.ts`). | Componentes, JSX o estado de React. Las imágenes no van a Firebase (van a R2). |
 | `src/hooks/` | Hooks de React reutilizables y sin datos propios (`useDocumentTitle`). | Lógica específica de una sola página. |
 | `src/router/` | Enrutador (History API), `Link`, `useLocation`, `useNavigate`. Único lugar que toca `window.history`. | Conocimiento de las páginas o de los datos. |
 | `src/lib/` | Funciones puras y testeables sobre los datos (`searchMangas`, `getLatestChapter`, `getCoverUrl`…). | JSX, estado de React o acceso a datos globales. |
@@ -100,7 +106,7 @@ Si un cambio de código es necesario para añadir un manga, la arquitectura est�
 
 ### 4.4 Escala y límites
 
-Con un manga de ~20 capítulos, un catálogo en archivos TypeScript es suficiente. Si el catálogo crece mucho o se necesita editarlo sin tocar el repositorio, se reevaluará en la fase del panel de administración (sin Firebase, Supabase ni Cloudflare, según las restricciones del proyecto).
+Con un manga de ~20 capítulos, un catálogo en archivos TypeScript sería suficiente. Se decidió pasar a Firestore (D-023) para poder editar el catálogo sin tocar el repositorio cuando exista el panel de administración. Hasta la Fase 4B la interfaz sigue usando los datos de demostración de `src/data/`.
 
 ## 5. Criterios para incorporar nuevos módulos
 
@@ -110,7 +116,7 @@ Antes de añadir una función, carpeta o dependencia, responder:
 2. **¿Resuelve un problema que existe hoy?** Si es "por si acaso", no se hace.
 3. **¿Existe ya una carpeta responsable?** Usarla antes de crear otra.
 4. **¿Depende de un manga concreto?** Si sí, es un dato y va en `src/data/`, no en el código.
-5. **¿Es gratuito y compatible con las restricciones?** Sin Cloudflare, Firebase, Supabase ni servicios de pago.
+5. **¿Es gratuito y compatible con las restricciones?** Solo Firestore, Cloudflare R2 y Cloudflare Pages (D-023); sin Supabase, Firebase Storage ni servicios de pago.
 6. **¿Hay una solución con React, TypeScript, Vite o la plataforma web?** Preferirla a una librería nueva.
 7. **¿Se documentó?** Las decisiones relevantes se anotan en `docs/DECISIONS.md`.
 
@@ -134,9 +140,13 @@ Cuando un módulo crezca y necesite varios archivos propios, se puede agrupar en
 | --- | --- |
 | 2. Diseño e inicio ✅ | Tokens, componentes base, `HomePage`, buscador local. |
 | 3. Catálogo ✅ | Enrutador propio, `CatalogPage`, `MangaPage`, `ChapterPage` (lector preparado), géneros, orden por recientes/populares, modelo de datos ampliado. |
-| 4. Lector | Sustituye el aviso de `ChapterPage` por las imágenes; datos reales del primer manga. |
-| 5. Administración | Se decide cómo editar el catálogo respetando las restricciones de coste y de servicios. |
-| 6. Publicación | Netlify, usando `netlify.toml` (la regla `/* → /index.html` ya hace funcionar las URL directas). |
+| 4A. Firebase ✅ (código) | `src/firebase/`, variables de entorno, estructura de Firestore, reglas e índices. La interfaz no cambia. |
+| 4B. Lectura desde Firestore | Capa de lectura en `src/data/` y conversor a los tipos de interfaz; datos de demostración como alternativa. |
+| 5. Lector | Sustituye el aviso de `ChapterPage` por las imágenes; datos reales del primer manga. |
+| 6. Administración | Autenticación del administrador (`/admins/{uid}`), panel privado y subida de imágenes a R2. |
+| 7. Publicación | Cloudflare Pages (definir variables `VITE_FIREBASE_*` y la redirección de SPA; `netlify.toml` ya no aplica). |
+
+Las fases 5 a 7 son una propuesta por confirmar (D-027).
 
 ## 8. Rutas y páginas
 
@@ -169,3 +179,22 @@ App (RouterProvider)
 - `MangaCard` y `MangaGrid` aceptan cualquier `Manga`; añadir títulos no exige tocarlos. La tarjeta abre la ficha.
 - `Button` con `to` es un enlace con aspecto de botón; con `comingSoon` queda preparado para una función que aún no existe sin fingir que funciona.
 - `EmptyState` cubre todas las secciones sin contenido (sin mangas, sin capítulos, populares sin datos).
+
+## 10. Firestore (Fase 4A)
+
+Definido en `src/firebase/types.ts`; reglas en `firestore.rules`; índices en `firestore.indexes.json`. Decisiones en D-023 a D-026.
+
+```text
+mangas/{slug}                     MangaDoc (id = slug)
+└── chapters/{chapterId}          ChapterDoc (id = número con 3 dígitos: 001, 010.5)
+genres/{slug}                     GenreDoc
+siteConfig/main                   SiteConfigDoc
+admins/{uid}                      Marca de administrador (se crea a mano en la consola)
+```
+
+- **Imágenes:** solo se guardan URLs y metadatos (`{ url, width?, height? }`) de Cloudflare R2. Nada de Firebase Storage.
+- **Tipos de almacenamiento ≠ tipos de interfaz:** Firestore usa `Timestamp`, `null` en vez de `undefined` y capítulos en subcolección; la interfaz usa `Manga` con fechas ISO y capítulos embebidos. Un conversor (Fase 4B) los une.
+- **Lectura de visitantes:** solo mangas y capítulos con `isPublished == true` (y capítulos de mangas publicados). Las consultas deben incluir `where('isPublished', '==', true)`; las reglas no filtran, rechazan.
+- **Escritura:** solo administradores, es decir, UID con documento en `admins/{uid}`. Estar autenticado no basta. La autenticación se implementa en una fase posterior.
+- **Contador `views`:** los visitantes no pueden escribirlo. Una cifra real de lecturas requerirá otra solución (p. ej. una función en la nube o un servicio de estadísticas) sin abrir escritura pública.
+- **Alcance de las consultas con reglas actuales:** no hay consultas de grupo de colecciones (`chapters` de todos los mangas); si hacen falta (p. ej. "últimos capítulos" global), se amplían reglas e índices.

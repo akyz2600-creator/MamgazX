@@ -17,6 +17,8 @@ Registro de las decisiones relevantes del proyecto. Cada decisión nueva se aña
 
 ## D-003 · Sitio estático sin backend
 
+> Parcialmente reemplazada por D-023 (Fase 4A): se habilitan Firestore, R2 y Cloudflare Pages. Los lectores siguen sin cuenta.
+
 - **Decisión:** la aplicación es una SPA estática; sin base de datos, servidor ni cuentas.
 - **Motivo:** los lectores no necesitan registrarse, y las restricciones excluyen Cloudflare, Firebase, Supabase y servicios de pago. Un sitio estático en Netlify (plan gratuito) cumple todo.
 - **Consecuencia:** el catálogo se guardará como datos dentro del repositorio. Se reevaluará en la fase del panel de administración.
@@ -136,6 +138,8 @@ Se deciden cuando su fase lo requiera, no antes:
 
 ## D-021 · Contradicción pendiente: Firebase
 
+> **Resuelta en la Fase 4A (D-023):** la restricción se levanta para Firestore, R2 y Cloudflare Pages.
+
 - **Hallazgo:** la Fase 1 prohíbe Firebase, Supabase y Cloudflare; la Fase 3 habla de preparar una "futura integración con Firestore".
 - **Qué se hizo:** no se integró ningún servicio y los datos quedaron separados de la interfaz (los componentes solo reciben objetos `Manga`), por lo que cambiar el origen de datos solo afecta a `src/data/` y a `App.tsx`.
 - **Qué falta:** decidir, antes de la fase del panel de administración, si la restricción de la Fase 1 sigue vigente o se levanta para Firestore. Hasta entonces se mantiene la restricción original.
@@ -145,3 +149,44 @@ Se deciden cuando su fase lo requiera, no antes:
 - **Fechas "recientes":** se cuentan días de calendario, no horas, para que el indicador no cambie según la hora del día ni por el cambio de horario.
 - **Listas `ol`:** el reset global ahora incluye `ol` (antes mostraban numeración y sangría).
 - **Alturas de tarjeta:** todas las tarjetas de una fila miden lo mismo (`height: 100%`).
+
+## D-023 · Se habilitan Firestore, Cloudflare R2 y Cloudflare Pages (Fase 4A)
+
+> Resuelve D-021 y reemplaza la restricción de D-003 y del README ("sin Cloudflare, Firebase, Supabase ni servicios de pago").
+
+- **Decisión:** los datos del catálogo (mangas, capítulos, géneros, configuración) irán a **Firebase Firestore**; las imágenes a **Cloudflare R2** (Firestore solo guarda URLs y metadatos); la publicación será en **Cloudflare Pages**. Los lectores siguen sin cuenta; la autenticación será solo para el administrador, en una fase posterior.
+- **No se usan:** Supabase ni Firebase Storage.
+- **Origen:** instrucción explícita del propietario del proyecto al iniciar la Fase 4A.
+- **Consecuencias:** `netlify.toml` queda como configuración antigua sin uso (D-008); la publicación y la redirección de SPA en Cloudflare Pages se definen en la fase de publicación. El sitio actual sigue funcionando sin servicios externos mientras Firebase no esté configurado.
+
+## D-024 · SDK de Firebase y módulo único de inicialización
+
+- **Decisión:** dependencia `firebase ^13.3.0` (última versión estable consultada el 2026-11-16). `src/firebase/client.ts` es el único lugar que llama a `initializeApp`; el resto usa `getDb()` / `getFirebaseApp()`.
+- **Configuración:** variables `VITE_FIREBASE_*` en `.env.local` (plantilla en `.env.example`). Son datos públicos; la seguridad la dan las reglas. `.gitignore` excluye `.env*` (salvo `.env.example`), cuentas de servicio y cachés de Firebase.
+- **Inicialización perezosa:** importar el módulo no falla si faltan variables; `getDb()` lanza un error claro. `isFirebaseConfigured` permite usar los datos de demostración como alternativa.
+- **Dependencia justificada (D-002):** solo se importan `firebase/app` y `firebase/firestore`; Firebase no entra en el bundle hasta que algo importe el módulo.
+- **No instalado en el entorno de desarrollo de esta fase:** solo declarado en `package.json`; ver "Problemas conocidos" en PROJECT_STATUS.md.
+
+## D-025 · Estructura de Firestore
+
+- **Colecciones:** `mangas/{slug}` con subcolección `chapters/{chapterId}`, `genres/{slug}` y `siteConfig/main`. Detalle de campos en `src/firebase/types.ts`.
+- **Id del manga = slug:** unicidad garantizada y lectura directa sin consulta. Las reglas exigen que el campo `slug` coincida con el id. El slug es estable (D-005); cambiarlo equivale a crear otro manga.
+- **Id del capítulo = número con 3 dígitos** (`001`, `010.5`), igual que las carpetas de imágenes (`chapterDocId`).
+- **Tipos de almacenamiento separados de los de interfaz:** `Timestamp` frente a fechas ISO, subcolección frente a `chapters` embebido. El conversor se escribe en la Fase 4B; los tipos de la interfaz no cambian.
+- **Todos los campos existen siempre**; lo opcional se guarda como `null` (Firestore rechaza `undefined`). Así `lastChapterAt: null` permite ordenar por esa fecha también los mangas sin capítulos.
+- **Campo añadido respecto a la lista pedida:** `format` (`manga` | `manhwa`), porque la interfaz actual lo usa.
+- **Imágenes:** `coverImage` y cada página son `{ url, width?, height? }` con URL de R2.
+- **Índices** (`firestore.indexes.json`): publicados por recientes, por populares (con desempate por reciente), por género + recientes, y capítulos publicados por número.
+
+## D-026 · Seguridad de Firestore
+
+- **Administrador = existe `/admins/{uid}`.** Un usuario autenticado cualquiera NO es administrador. El documento se crea a mano en la consola; las reglas prohíben crearlo desde la web. (Alternativa descartada por ahora: *custom claims*, que exigen el SDK de administrador o una función en la nube.)
+- **Visitantes:** solo leen mangas publicados y capítulos publicados cuyo manga también lo esté; leen géneros y `siteConfig/main`; no escriben nada. Las consultas deben filtrar por `isPublished == true`.
+- **Validación de escrituras de administrador:** conjunto exacto de campos y tipos para mangas y capítulos.
+- **`views`:** los visitantes no pueden incrementarlo. Contarlo sin abrir escritura pública exige otra solución (fase posterior).
+- **Todo lo no listado queda denegado.** No hay reglas abiertas.
+- **Estado:** reglas sin probar en el emulador (no disponible en el entorno de la fase).
+
+## D-027 · Numeración de fases
+
+- **Decisión:** la Fase 4 pasa a ser "Firebase y datos" (4A preparación, 4B capa de lectura…). El lector, el panel de administración, R2 y la publicación en Cloudflare Pages se ordenan en fases posteriores, por confirmar con el propietario.

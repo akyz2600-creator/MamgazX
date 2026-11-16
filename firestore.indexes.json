@@ -1,0 +1,39 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "mangas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublished", "order": "ASCENDING" },
+        { "fieldPath": "lastChapterAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "mangas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublished", "order": "ASCENDING" },
+        { "fieldPath": "views", "order": "DESCENDING" },
+        { "fieldPath": "lastChapterAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "mangas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublished", "order": "ASCENDING" },
+        { "fieldPath": "genres", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "lastChapterAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "chapters",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublished", "order": "ASCENDING" },
+        { "fieldPath": "number", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

@@ -1,0 +1,109 @@
+rules_version = '2';
+
+/**
+ * Reglas de Firestore de MangazX (Fase 4A).
+ *
+ * - Visitantes (sin sesión): solo LEEN mangas y capítulos publicados, géneros y siteConfig/main.
+ * - Escritura: únicamente administradores. Un usuario autenticado NO es administrador por el
+ *   hecho de haber iniciado sesión: debe existir el documento /admins/{uid} con su UID.
+ *   Ese documento se crea a mano en la consola de Firebase (las reglas impiden crearlo desde la web).
+ * - Todo lo que no esté listado aquí queda denegado.
+ *
+ * IMPORTANTE: las reglas no filtran resultados. Las consultas de los visitantes DEBEN incluir
+ * where('isPublished', '==', true); si no, Firestore rechaza la consulta completa.
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // El manga padre está publicado (para leer sus capítulos).
+    function isMangaPublished(mangaId) {
+      return get(/databases/$(database)/documents/mangas/$(mangaId)).data.isPublished == true;
+    }
+
+    // Validación del documento de manga resultante de una escritura de administrador.
+    function isValidManga(mangaId) {
+      let d = request.resource.data;
+      let fields = ['title', 'alternativeTitle', 'slug', 'synopsis', 'format', 'coverImage',
+                    'genres', 'status', 'views', 'createdAt', 'updatedAt', 'lastChapterAt',
+                    'isPublished'];
+      return d.keys().hasAll(fields)
+        && d.keys().hasOnly(fields)
+        && d.slug == mangaId
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 200
+        && (d.alternativeTitle == null || d.alternativeTitle is string)
+        && d.synopsis is string
+        && d.format in ['manga', 'manhwa']
+        && (d.coverImage == null || d.coverImage is map)
+        && d.genres is list
+        && d.status in ['ongoing', 'completed']
+        && d.views is number && d.views >= 0
+        && d.createdAt is timestamp
+        && d.updatedAt is timestamp
+        && (d.lastChapterAt == null || d.lastChapterAt is timestamp)
+        && d.isPublished is bool;
+    }
+
+    // Validación del documento de capítulo resultante de una escritura de administrador.
+    function isValidChapter() {
+      let d = request.resource.data;
+      let fields = ['number', 'title', 'publishedAt', 'pages', 'isPublished'];
+      return d.keys().hasAll(fields)
+        && d.keys().hasOnly(fields)
+        && d.number is number && d.number >= 0
+        && (d.title == null || d.title is string)
+        && d.publishedAt is timestamp
+        && d.pages is list
+        && d.isPublished is bool;
+    }
+
+    // Administradores: un usuario solo puede comprobar si ÉL es admin. Nadie escribe desde la web.
+    match /admins/{uid} {
+      allow get: if isSignedIn() && request.auth.uid == uid;
+      allow list, create, update, delete: if false;
+    }
+
+    match /mangas/{mangaId} {
+      allow get, list: if resource.data.isPublished == true || isAdmin();
+      allow create, update: if isAdmin() && isValidManga(mangaId);
+      allow delete: if isAdmin();
+
+      match /chapters/{chapterId} {
+        allow get, list: if (resource.data.isPublished == true && isMangaPublished(mangaId))
+          || isAdmin();
+        allow create, update: if isAdmin() && isValidChapter();
+        allow delete: if isAdmin();
+      }
+    }
+
+    // Lectura pública intencionada: catálogo de géneros (sin datos sensibles).
+    match /genres/{genreId} {
+      allow get, list: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.slug == genreId
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0;
+      allow delete: if isAdmin();
+    }
+
+    // Lectura pública intencionada de un documento concreto (siteConfig/main). No guardar secretos aquí.
+    match /siteConfig/{docId} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Cualquier otra ruta: denegada.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -12,6 +12,15 @@ npm-debug.log*
 .env.*
 !.env.example
 
+# Firebase: caché local, registros y credenciales privadas (nunca subir)
+.firebase/
+firebase-debug.log*
+firestore-debug.log
+ui-debug.log
+*-firebase-adminsdk-*.json
+serviceAccount*.json
+service-account*.json
+
 # Netlify
 .netlify/
 
