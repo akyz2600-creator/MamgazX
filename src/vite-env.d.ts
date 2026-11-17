@@ -11,4 +11,6 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_PROJECT_ID?: string;
   readonly VITE_FIREBASE_APP_ID?: string;
   readonly VITE_FIREBASE_MESSAGING_SENDER_ID?: string;
+  /** `true` fuerza los datos de demostración aunque Firebase esté configurado. */
+  readonly VITE_USE_DEMO_DATA?: string;
 }

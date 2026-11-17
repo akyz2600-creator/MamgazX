@@ -2,7 +2,7 @@
 
 > Documento breve de seguimiento. El detalle técnico vive en [ARCHITECTURE.md](ARCHITECTURE.md) y [docs/DECISIONS.md](docs/DECISIONS.md); el uso, en [README.md](README.md).
 
-**Fase actual:** 4A — Preparación de Firebase y Firestore (**terminada y verificada el 2026-11-16**). **Siguiente:** 4B — Capa de datos de solo lectura (por iniciar; esperar instrucciones del propietario).
+**Fase actual:** 4B — Capa de datos de solo lectura con Firestore (**código escrito el 2026-11-16; compilación y prueba contra Firebase PENDIENTES**, ver "Fase 4B"). La 4A quedó terminada y verificada el 2026-11-16. **Siguiente:** esperar instrucciones del propietario.
 
 ## Qué funciona hoy
 
@@ -12,6 +12,8 @@
 | 2 | Identidad visual, encabezado, buscador, banner, tarjetas, "Últimos mangas", "Populares", pie. |
 | 3 | URL propias, catálogo con orden por recientes/populares, ficha de cada manga, lista de capítulos, géneros, estados, "última actualización" automática, páginas 404, lector **preparado**. |
 | 4A | Módulo de Firebase, variables de entorno, estructura de Firestore (tipos), reglas de seguridad e índices. **La interfaz no usa Firebase todavía**: sigue mostrando los datos de demostración. |
+
+| 4B | Lectura de Firestore (mangas publicados, manga por slug, capítulos, géneros, recientes/populares) conectada a la interfaz, con estados de carga y error. **Sin verificar aún** (ver "Fase 4B"). |
 
 Rutas: `/`, `/catalogo` (`?orden=populares`), `/manga/{slug}`, `/manga/{slug}/capitulo/{n}`. Detalle en ARCHITECTURE.md, sección 8.
 
@@ -27,6 +29,29 @@ React + TypeScript + Vite · **Firestore** (mangas, capítulos, géneros, config
   - `.env.example`.
 - **Archivos modificados:** `package.json` (dependencia `firebase ^13.3.0`), `src/vite-env.d.ts` (tipos de las variables `VITE_FIREBASE_*`), `.gitignore` (credenciales y cachés de Firebase), y esta documentación (README, ARCHITECTURE, DECISIONS).
 - **No se tocó:** ningún componente, página, estilo ni dato de la Fase 2/3. `src/firebase/` no lo importa nadie aún, así que el sitio funciona igual y Firebase no entra en el bundle.
+
+## Fase 4B: capa de lectura de Firestore (2026-11-16)
+
+**Estado: código escrito, NO verificado.** El entorno de Claude no tiene red para instalar paquetes, así que no se pudo ejecutar `npm run build` ni probar contra Firebase. Hay que hacerlo en Cloud Shell (ver "Para cerrar la 4B").
+
+- **Archivos nuevos:** `src/data/firestoreSource.ts` (consultas de solo lectura + conversión a tipos de interfaz), `src/hooks/useCatalog.ts` (elige la fuente y entrega estados de carga/error).
+- **Archivos modificados:** `src/App.tsx` (usa los hooks; muestra "Cargando…"/error), `src/lib/manga.ts` (`getCoverUrl` acepta URL completa de R2), `src/vite-env.d.ts` y `.env.example` (variable opcional `VITE_USE_DEMO_DATA`).
+- **Consultas** (todas con `where('isPublished','==',true)`, compatibles con las reglas): `listPublishedMangas('recent'|'popular')`, `getMangaBySlug` (consulta por `slug`, no `getDoc`, para que un manga inexistente o no publicado dé `null` y no un error de permisos), `getPublishedChapters`, `listGenres`. Usan los índices de `firestore.indexes.json`.
+- **Demostración vs. real:** sin Firebase configurado, o con `VITE_USE_DEMO_DATA=true`, se usan los datos de `src/data/mangas.ts`. Con Firebase configurado se leen datos reales y **nunca se mezclan** con los de demostración: si falla, se muestra el error; si no hay mangas, el estado vacío existente.
+- **Decisiones de diseño:**
+  - La interfaz carga todos los mangas publicados una vez (tope 200) y el orden/búsqueda siguen siendo del lado del cliente; `listPublishedMangas` con `'popular'` y `limit` queda disponible, pero la interfaz aún no lo usa.
+  - Cada manga del listado trae solo su **último capítulo** (1 lectura extra por manga) para que tarjetas, buscador y banner muestren "Cap. N". La ficha y el lector cargan **todos** los capítulos.
+  - Los géneros de un manga se filtran contra `src/data/genres.ts`: un id que no exista allí se ignora. `listGenres()` existe, pero ninguna pantalla lo usa todavía.
+- **Limitación conocida:** con datos reales, el botón "Leer ahora" del banner enlaza al último capítulo (el listado no trae el primero). Solución de fondo: guardar `firstChapterNumber`, `latestChapterNumber` y `chapterCount` en el manga (cambia el modelo y las reglas; decisión pendiente del propietario). Eso también eliminaría las lecturas extra por manga.
+
+### Para cerrar la 4B (en Cloud Shell)
+
+1. `npm install && npm run build` y corregir los errores de tipos si aparecen.
+2. Publicar índices: `npx firebase-tools deploy --only firestore:indexes --project mangazx-1b08a` (o crearlos con el enlace del error de la consola del navegador).
+3. Cargar en la consola de Firebase: `siteConfig/main`, géneros y un manga con `isPublished: true` **con todos los campos del modelo** (`MangaDoc`: `createdAt`, `updatedAt`, `lastChapterAt` como Timestamp, `slug` igual al id) y al menos un capítulo en `mangas/{slug}/chapters/001`.
+4. `npm run dev`: comprobar inicio, catálogo, ficha, capítulo y un slug inexistente (debe mostrar "no encontrado", no un error).
+5. Probar `VITE_USE_DEMO_DATA=true` y sin `.env.local` (debe verse la demostración).
+6. Subir `package-lock.json`.
 
 ## Hallazgos de la revisión inicial
 
@@ -76,7 +101,7 @@ npx firebase-tools deploy --only firestore:rules,firestore:indexes --project man
 
 ## Pendiente (más allá de la 4A)
 
-- **Fase 4B:** ver más abajo.
+- **Fase 4B:** verificar compilación y lectura real (ver "Fase 4B").
 - **Lector de capítulos:** mostrar las páginas. Hoy `/manga/{slug}/capitulo/{n}` avisa "El lector estará disponible próximamente".
 - **Datos reales y subida de imágenes a R2**, y sustituir los 4 mangas de demostración.
 - **Estadísticas reales de lecturas** (los visitantes no pueden escribir `views`).
@@ -85,7 +110,7 @@ npx firebase-tools deploy --only firestore:rules,firestore:indexes --project man
 - **Páginas legales y de contacto.**
 - **Publicación en Cloudflare Pages** (definir las variables `VITE_FIREBASE_*` allí y la redirección de SPA; `netlify.toml` ya no aplica).
 
-## Cómo continuar con la Fase 4B (propuesta, por confirmar)
+## Propuesta original de la Fase 4B (histórico; ya implementada en código, ver "Fase 4B")
 
 Objetivo: que el catálogo pueda leerse desde Firestore **sin romper** el sitio de demostración.
 

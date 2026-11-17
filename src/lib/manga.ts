@@ -93,8 +93,12 @@ export function isRecentlyUpdated(manga: Manga, now: Date = new Date()): boolean
 
 /* ---------- Presentación ---------- */
 
-/** URL pública de la portada, o `undefined` si el manga aún no tiene portada. */
+/**
+ * URL pública de la portada, o `undefined` si el manga aún no tiene portada.
+ * Con datos de Firestore `coverImage` ya es una URL completa (Cloudflare R2): se devuelve tal cual.
+ */
 export function getCoverUrl(manga: Manga): string | undefined {
+  if (manga.coverImage && /^https?:\/\//.test(manga.coverImage)) return manga.coverImage;
   return manga.coverImage ? `${siteConfig.contentBasePath}/${manga.slug}/${manga.coverImage}` : undefined;
 }
 
